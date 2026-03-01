@@ -413,6 +413,7 @@ jobs:
 
     steps:
       - name: Send Slack notification
+        if: always()
         uses: 8398a7/action-slack@v3
         with:
           status: ${{ job.status }}
@@ -421,8 +422,7 @@ jobs:
             Status: ${{ job.status }}
             Commit: ${{ github.sha }}
             Author: ${{ github.actor }}
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
-        if: always()
+          channels: '#deployment-notifications'
 
       - name: Create GitHub release
         if: github.event_name == 'release'
