@@ -11,10 +11,7 @@ class Settings(BaseSettings):
     """Application settings"""
 
     model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        case_sensitive=True,
-        extra="ignore"
+        env_file=".env", env_file_encoding="utf-8", case_sensitive=True, extra="ignore"
     )
 
     # Application
@@ -37,7 +34,7 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: List[str] = [
         "http://localhost:3000",
         "http://localhost:8000",
-        "http://127.0.0.1:3000"
+        "http://127.0.0.1:3000",
     ]
     ALLOWED_HOSTS: List[str] = ["*"]
 

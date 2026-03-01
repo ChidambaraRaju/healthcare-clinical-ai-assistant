@@ -12,6 +12,7 @@ router = APIRouter()
 
 class PatientBase(BaseModel):
     """Base patient model"""
+
     first_name: str
     last_name: str
     date_of_birth: str
@@ -22,11 +23,13 @@ class PatientBase(BaseModel):
 
 class PatientCreate(PatientBase):
     """Patient creation model"""
+
     pass
 
 
 class Patient(PatientBase):
     """Patient response model"""
+
     id: int
     created_at: datetime
     updated_at: datetime
@@ -36,11 +39,7 @@ class Patient(PatientBase):
 
 
 @router.get("/", response_model=List[Patient])
-async def list_patients(
-    skip: int = 0,
-    limit: int = 100,
-    search: Optional[str] = None
-):
+async def list_patients(skip: int = 0, limit: int = 100, search: Optional[str] = None):
     """
     List all patients with pagination and search
 
@@ -69,7 +68,7 @@ async def create_patient(patient: PatientCreate):
         "id": 1,
         **patient.dict(),
         "created_at": datetime.utcnow(),
-        "updated_at": datetime.utcnow()
+        "updated_at": datetime.utcnow(),
     }
 
 
@@ -90,7 +89,7 @@ async def get_patient(patient_id: int):
         "email": "john.doe@example.com",
         "phone": "+1-555-0123",
         "created_at": datetime.utcnow(),
-        "updated_at": datetime.utcnow()
+        "updated_at": datetime.utcnow(),
     }
 
 
@@ -107,7 +106,7 @@ async def update_patient(patient_id: int, patient: PatientCreate):
         "id": patient_id,
         **patient.dict(),
         "created_at": datetime.utcnow(),
-        "updated_at": datetime.utcnow()
+        "updated_at": datetime.utcnow(),
     }
 
 

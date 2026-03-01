@@ -119,7 +119,7 @@ jobs:
       - name: Install npm audit
         run: |
           cd frontend
-          npm ci
+          npm install --legacy-peer-deps
 
       - name: Run npm audit
         run: |

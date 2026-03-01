@@ -11,6 +11,7 @@ router = APIRouter()
 
 class CodeSuggestion(BaseModel):
     """Medical code suggestion model"""
+
     code: str  # e.g., "I10" for ICD-10, "99213" for CPT
     description: str
     category: str  # "ICD-10" or "CPT"
@@ -20,6 +21,7 @@ class CodeSuggestion(BaseModel):
 
 class CodeSuggestionRequest(BaseModel):
     """Request for code suggestions"""
+
     text: str  # Clinical note or description
     code_type: Optional[str] = "ICD-10"  # "ICD-10" or "CPT" or "both"
     max_results: Optional[int] = 10
@@ -42,23 +44,20 @@ async def suggest_codes(request: CodeSuggestionRequest):
             description="Essential (primary) hypertension",
             category="ICD-10",
             confidence=0.95,
-            rationale="Keywords: hypertension, high blood pressure found in text"
+            rationale="Keywords: hypertension, high blood pressure found in text",
         ),
         CodeSuggestion(
             code="E11.9",
             description="Type 2 diabetes mellitus without complications",
             category="ICD-10",
             confidence=0.87,
-            rationale="Keywords: diabetes, hyperglycemia mentioned"
-        )
+            rationale="Keywords: diabetes, hyperglycemia mentioned",
+        ),
     ]
 
 
 @router.get("/icd10/search", response_model=List[CodeSuggestion])
-async def search_icd10(
-    query: str,
-    limit: int = 10
-):
+async def search_icd10(query: str, limit: int = 10):
     """
     Search ICD-10 codes
 
@@ -70,10 +69,7 @@ async def search_icd10(
 
 
 @router.get("/cpt/search", response_model=List[CodeSuggestion])
-async def search_cpt(
-    query: str,
-    limit: int = 10
-):
+async def search_cpt(query: str, limit: int = 10):
     """
     Search CPT codes
 
@@ -96,14 +92,11 @@ async def get_icd10_detail(code: str):
         "code": code,
         "description": "Essential (primary) hypertension",
         "category": "Diseases of the circulatory system",
-        "includes": [
-            "High blood pressure",
-            "Hypertension NOS"
-        ],
+        "includes": ["High blood pressure", "Hypertension NOS"],
         "excludes": [
             "Hypertension complicating pregnancy (O10-O16)",
-            "Neonatal hypertension (P29.2)"
-        ]
+            "Neonatal hypertension (P29.2)",
+        ],
     }
 
 
@@ -123,8 +116,8 @@ async def get_cpt_detail(code: str):
         "requirements": [
             "Expanded problem focused history",
             "Expanded problem focused examination",
-            "Medical decision making of low complexity"
-        ]
+            "Medical decision making of low complexity",
+        ],
     }
 
 
@@ -137,7 +130,4 @@ async def validate_codes(codes: List[str], code_type: str):
     - **code_type**: Type of codes (ICD-10 or CPT)
     """
     # TODO: Implement actual code validation
-    return {
-        "valid": codes[:len(codes)//2],
-        "invalid": codes[len(codes)//2:]
-    }
+    return {"valid": codes[: len(codes) // 2], "invalid": codes[len(codes) // 2 :]}

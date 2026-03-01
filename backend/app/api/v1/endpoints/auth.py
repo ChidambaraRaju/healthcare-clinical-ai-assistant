@@ -13,6 +13,7 @@ router = APIRouter()
 
 class LoginRequest(BaseModel):
     """Login request model"""
+
     email: EmailStr
     password: str
     mfa_code: Optional[str] = None
@@ -20,6 +21,7 @@ class LoginRequest(BaseModel):
 
 class TokenResponse(BaseModel):
     """Token response model"""
+
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
@@ -41,7 +43,7 @@ async def login(request: LoginRequest):
         "access_token": "placeholder_token",
         "refresh_token": "placeholder_refresh_token",
         "token_type": "bearer",
-        "expires_in": settings.JWT_EXPIRE_MINUTES * 60
+        "expires_in": settings.JWT_EXPIRE_MINUTES * 60,
     }
 
 
@@ -59,7 +61,7 @@ async def refresh_token():
         "access_token": "new_access_token",
         "refresh_token": "new_refresh_token",
         "token_type": "bearer",
-        "expires_in": settings.JWT_EXPIRE_MINUTES * 60
+        "expires_in": settings.JWT_EXPIRE_MINUTES * 60,
     }
 
 
@@ -74,5 +76,5 @@ async def setup_mfa():
     """Setup MFA for user account"""
     return {
         "secret": "JBSWY3DPEHPK3PXP",
-        "qr_code_url": "otpauth://totp/HealthcareAI:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=HealthcareAI"
+        "qr_code_url": "otpauth://totp/HealthcareAI:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=HealthcareAI",
     }

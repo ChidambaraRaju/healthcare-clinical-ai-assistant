@@ -12,6 +12,7 @@ router = APIRouter()
 
 class DocumentBase(BaseModel):
     """Base document model"""
+
     patient_id: int
     document_type: str  # e.g., "progress_note", "discharge_summary", "consultation"
     title: str
@@ -20,11 +21,13 @@ class DocumentBase(BaseModel):
 
 class DocumentCreate(DocumentBase):
     """Document creation model"""
+
     pass
 
 
 class Document(DocumentBase):
     """Document response model"""
+
     id: int
     created_by: str
     created_at: datetime
@@ -37,6 +40,7 @@ class Document(DocumentBase):
 
 class DocumentGenerateRequest(BaseModel):
     """Request to generate document using AI"""
+
     patient_id: int
     document_type: str
     encounter_data: dict  # Contains encounter notes, vitals, etc.
@@ -45,9 +49,7 @@ class DocumentGenerateRequest(BaseModel):
 
 @router.get("/", response_model=List[Document])
 async def list_documents(
-    patient_id: Optional[int] = None,
-    skip: int = 0,
-    limit: int = 100
+    patient_id: Optional[int] = None, skip: int = 0, limit: int = 100
 ):
     """
     List clinical documents with filtering
@@ -77,7 +79,7 @@ async def create_document(document: DocumentCreate):
         "created_by": "user_id",
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow(),
-        "ai_generated": False
+        "ai_generated": False,
     }
 
 
@@ -102,7 +104,7 @@ async def generate_document(request: DocumentGenerateRequest):
         "created_by": "ai_system",
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow(),
-        "ai_generated": True
+        "ai_generated": True,
     }
 
 
@@ -116,11 +118,7 @@ async def summarize_document(document_id: int):
     # TODO: Implement actual document summarization
     return {
         "summary": "AI-generated summary of the document...",
-        "key_points": [
-            "Key point 1",
-            "Key point 2",
-            "Key point 3"
-        ]
+        "key_points": ["Key point 1", "Key point 2", "Key point 3"],
     }
 
 
@@ -141,7 +139,7 @@ async def get_document(document_id: int):
         "created_by": "user_id",
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow(),
-        "ai_generated": False
+        "ai_generated": False,
     }
 
 
@@ -160,7 +158,7 @@ async def update_document(document_id: int, document: DocumentCreate):
         "created_by": "user_id",
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow(),
-        "ai_generated": False
+        "ai_generated": False,
     }
 
 
@@ -176,10 +174,7 @@ async def delete_document(document_id: int):
 
 
 @router.post("/upload")
-async def upload_document(
-    file: UploadFile = File(...),
-    patient_id: int = None
-):
+async def upload_document(file: UploadFile = File(...), patient_id: int = None):
     """
     Upload and process a document file
 
@@ -190,5 +185,5 @@ async def upload_document(
     return {
         "message": "File uploaded successfully",
         "document_id": 1,
-        "filename": file.filename
+        "filename": file.filename,
     }

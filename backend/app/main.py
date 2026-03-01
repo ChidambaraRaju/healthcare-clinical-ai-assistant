@@ -23,7 +23,7 @@ structlog.configure(
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
         structlog.processors.UnicodeDecoder(),
-        structlog.processors.JSONRenderer()
+        structlog.processors.JSONRenderer(),
     ],
     context_class=dict,
     logger_factory=structlog.stdlib.LoggerFactory(),
@@ -70,10 +70,7 @@ app.add_middleware(
 
 # Trusted Host middleware for production
 if settings.ENVIRONMENT == "production":
-    app.add_middleware(
-        TrustedHostMiddleware,
-        allowed_hosts=settings.ALLOWED_HOSTS
-    )
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.ALLOWED_HOSTS)
 
 
 # Include API router
@@ -87,7 +84,7 @@ async def root():
         "message": "Healthcare Clinical AI Assistant API",
         "version": "1.0.0",
         "status": "operational",
-        "docs": "/api/docs"
+        "docs": "/api/docs",
     }
 
 
@@ -97,7 +94,7 @@ async def health_check():
     return {
         "status": "healthy",
         "version": "1.0.0",
-        "environment": settings.ENVIRONMENT
+        "environment": settings.ENVIRONMENT,
     }
 
 
@@ -105,11 +102,7 @@ async def health_check():
 async def readiness_check():
     """Readiness check endpoint"""
     # Add database connectivity check here
-    return {
-        "status": "ready",
-        "database": "connected",
-        "cache": "connected"
-    }
+    return {"status": "ready", "database": "connected", "cache": "connected"}
 
 
 # Global exception handler
@@ -121,16 +114,12 @@ async def global_exception_handler(request, exc):
         status_code=500,
         content={
             "detail": "Internal server error",
-            "message": "An unexpected error occurred"
-        }
+            "message": "An unexpected error occurred",
+        },
     )
 
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(
-        "app.main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True
-    )
+
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
