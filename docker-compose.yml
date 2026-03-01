@@ -1,0 +1,136 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:14-alpine
+    container_name: clinical-ai-postgres
+    environment:
+      POSTGRES_USER: clinical_ai
+      POSTGRES_PASSWORD: clinical_ai_password
+      POSTGRES_DB: clinical_ai
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clinical_ai"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for cache and Celery
+  redis:
+    image: redis:7-alpine
+    container_name: clinical-ai-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: clinical-ai-backend
+    environment:
+      DATABASE_URL: postgresql://clinical_ai:clinical_ai_password@postgres:5432/clinical_ai
+      REDIS_URL: redis://redis:6379/0
+      ML_SERVICE_URL: http://ml:8001
+      ENVIRONMENT: development
+      DEBUG: true
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - backend_cache:/tmp
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ml:
+        condition: service_started
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # ML Service
+  ml:
+    build:
+      context: ./ml
+      dockerfile: Dockerfile
+    container_name: clinical-ai-ml
+    environment:
+      DEVICE: cpu
+      MODEL_CACHE_DIR: /app/models
+      ENABLE_CACHE: true
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./ml:/app
+      - models:/app/models
+    command: uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: clinical-ai-frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+    command: npm run dev
+
+  # Celery Worker (optional, for background tasks)
+  celery-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: clinical-ai-celery
+    environment:
+      DATABASE_URL: postgresql://clinical_ai:clinical_ai_password@postgres:5432/clinical_ai
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: celery -A app.worker worker --loglevel=info
+
+  # pgAdmin (optional, for database management)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: clinical-ai-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@clinicalai.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+  redis_data:
+  models:
+  backend_cache:
+
+networks:
+  default:
+    name: clinical-ai-network
